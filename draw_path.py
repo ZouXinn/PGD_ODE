@@ -6,23 +6,21 @@ import numpy as np
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     # path related
-    parser.add_argument("--result_path", required=False, type=str, default="./run_results/")
+    parser.add_argument("--result_path", required=False, type=str, default="./run_results/simu2/")
     parser.add_argument('--pdf', type=int, default=0)
-    parser.add_argument('--save', type=int, default=1)
+    parser.add_argument('--save', type=int, default=0)
     parser.add_argument("--save_path", required=False, type=str, default="./draw_results")
     
     parser.add_argument("--eps", required=False, type=float, default=0.1)
     parser.add_argument("--x0", required=False, type=float, nargs='+', choices=[None, [1, 0]], default=[1, 0])
-    # parser.add_argument("--x0", required=False, type=float, nargs='+', choices=[None, [1, 0]], default=None)
     
     args = parser.parse_args()
     
     
     if args.x0 is None:
-        filename = "simu_path_None"
-        x0=(0.05,0)
+        raise NotImplementedError
     else:
-        filename = "simu_path_{}".format(args.x0)
+        filename = "_path_{}_{}".format(args.x0, args.eps)
         x0=tuple(args.x0)
         
     data = np.load(args.result_path + filename + ".npy")
@@ -42,15 +40,12 @@ if __name__=="__main__":
     x = data[:,0]
     y = data[:,1]
     
-    plt.plot(x, y)
-    
-    # plt.xlim(x0[0]-args.eps-padding,x0[0]+args.eps+padding)
-    # plt.ylim(x0[1]-args.eps-padding,x0[1]+args.eps+padding)
+    plt.plot(x, y, color='b')
     
     
     if args.save:
         if args.pdf:
-            plt.savefig(filename, format='pdf')
+            plt.savefig(filename + '.pdf', format='pdf')
         else:
             plt.savefig(filename + '.png')
     else:

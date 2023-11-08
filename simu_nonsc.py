@@ -1,19 +1,15 @@
 import argparse
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import json
 import random
 import math
 
-a = 2
-b = 1
 
 def f(x: np.ndarray):
-    return - (a*x[0]^2 + b*x[1]^2) 
+    return (-x[0]^2)
 
 def f_prime(x: np.ndarray):
-    return -2 * np.array([a,b]) * x
+    return np.array([-2*x[0], 0])
 
 def project_delta(eps: float, delta: np.ndarray):
     l2_norm = np.linalg.norm(delta, ord=2)
@@ -24,10 +20,6 @@ def project_delta(eps: float, delta: np.ndarray):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    
-    parser.add_argument('--pdf', type=int, default=0)
-    parser.add_argument('--save', type=int, default=1)
-    
     # path related
     parser.add_argument("--save_path", required=False, type=str, default="./run_results/simu2")
     
@@ -38,13 +30,8 @@ if __name__=="__main__":
     parser.add_argument("--seed", required=False, type=int, default=2)
     
     parser.add_argument("--x0", required=False, type=float, nargs='+', choices=[None, [1, 0]], default=[1, 0])
-    # parser.add_argument("--x0", required=False, type=float, nargs='+', choices=[None, [1, 0]], default=None)
 
     args = parser.parse_args()
-    
-    ##############
-    # args.step_size = 100*args.eps / args.step_num
-    ##############
     
     # set seed
     random.seed(args.seed)
@@ -55,13 +42,11 @@ if __name__=="__main__":
     if args.x0 is not None:
         x0 = np.array(args.x0)
         x_star = np.array([1-args.eps, 0])
-        # delta = np.array([1.2/20, 1.3/20])
         delta = args.eps * np.array([math.cos(math.radians(150)), math.sin(math.radians(150))])
     else:
-        x0 = np.array([0.05, 0])
-        x_star = np.array([0, 0])
-        # delta = np.array([1.2/20, 1.3/20])
-        delta = np.array([1.2/20, -1.3/20])
+        x0 = np.array([0, 0])
+        x_star = np.array([np.sqrt(2)/2 * args.eps, np.sqrt(2)/2 * args.eps])
+        delta = np.array([args.eps, 0])
         
     
     
@@ -81,14 +66,11 @@ if __name__=="__main__":
         delta = project_delta(args.eps, delta)
         path_list.append(x0+delta)
         norm_list.append(np.linalg.norm(x0+delta-x_star, ord=2))
-    
-    # print(path_list)
-    # print(norm_list)
 
     
     if args.x0 is None:
-        norm_path = args.save_path + "_norm_None"
-        path_path = args.save_path + "_path_None"
+        norm_path = os.path.join(args.save_path, "_norm_None_{}".format(args.eps))
+        path_path = os.path.join(args.save_path, "_path_None_{}".format(args.eps))
     else:
         norm_path = os.path.join(args.save_path, "_norm_{}_{}".format(args.x0, args.eps))
         path_path = os.path.join(args.save_path, "_path_{}_{}".format(args.x0, args.eps))
@@ -96,21 +78,4 @@ if __name__=="__main__":
     
     np.save(norm_path, norm_list)
     np.save(path_path, path_list)
-    
-    
-    
-    
-    
-    # if args.save:
-    #     if args.x0 is None:
-    #         save_path = args.save_path + "_None"
-    #     else:
-    #         save_path = args.save_path + "_{}".format(args.x0)
-            
-    #     if args.pdf:
-    #         plt.savefig(save_path, format='pdf')
-    #     else:
-    #         plt.savefig(save_path + '.png')
-    # else:
-    #     plt.show()
     
